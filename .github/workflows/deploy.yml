@@ -24,7 +24,7 @@ jobs:
           echo "🚀 Starting deployment on EC2"
 
           # Navigate to your project directory
-          cd /home/ec2-user/notesdock   # <-- change if your project path is different
+          cd /home/ec2-user/SAMPLE   # <-- updated to match your EC2 path
 
           # Pull latest code
           git reset --hard
@@ -37,7 +37,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-          # Restart your Flask systemd service (update name if different)
+          # Restart your Flask systemd service
           sudo systemctl daemon-reload
           sudo systemctl restart notesdock
 
