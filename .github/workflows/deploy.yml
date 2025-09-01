@@ -1,0 +1,47 @@
+name: Deploy Flask App to EC2
+
+on:
+  push:
+    branches:
+      - main   # Change if your repo uses master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🚀 Starting deployment on EC2"
+
+          # Navigate to your project directory
+          cd /home/ec2-user/notesdock   # <-- change if your project path is different
+
+          # Pull latest code
+          git reset --hard
+          git pull origin main
+
+          # Activate virtual environment
+          source venv/bin/activate
+
+          # Upgrade pip and install dependencies
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+          # Restart your Flask systemd service (update name if different)
+          sudo systemctl daemon-reload
+          sudo systemctl restart notesdock
+
+          # Restart nginx
+          sudo systemctl restart nginx
+
+          echo "✅ Deployment completed"
