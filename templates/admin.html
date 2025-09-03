@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin panel for managing study materials">
+    <title>Admin Panel - Year {{ year }} {{ semester.title() }} Semester | Notes Dock</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-brand">
+            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Notes Dock Logo" class="header-logo">
+            <h1 class="site-title">Notes Dock Admin</h1>
+        </div>
+        <div class="header-info">
+            <span class="admin-info">Year {{ year }} - {{ semester.title() }} Semester</span>
+            <a href="/admin/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="admin-container">
+            <!-- Navigation Tabs -->
+            <div class="admin-nav">
+                <button class="nav-tab active" data-section="overview" onclick="showSection('overview')">
+                    <i class="fas fa-chart-bar"></i> Overview
+                </button>
+                <button class="nav-tab" data-section="subjects" onclick="showSection('subjects')">
+                    <i class="fas fa-book"></i> Manage Subjects
+                </button>
+                <button class="nav-tab" data-section="add" onclick="showSection('add')">
+                    <i class="fas fa-plus"></i> Add Content
+                </button>
+            </div>
+
+            <!-- Overview Section -->
+            <div id="overview-section" class="admin-section active">
+                <h2 class="section-title">Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.total_subjects }}</h3>
+                            <p>Total Subjects</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.total_files }}</h3>
+                            <p>Total Files</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.total_visits }}</h3>
+                            <p>Total Visits</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.total_downloads }}</h3>
+                            <p>Total Downloads</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Last updated: {{ stats.last_updated[:19] if stats.last_updated else 'Never' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Subjects Section -->
+            <div id="subjects-section" class="admin-section">
+                <h2 class="section-title">Manage Subjects</h2>
+                
+                {% if subjects %}
+                    <div class="subjects-grid">
+                        {% for subject in subjects %}
+                        <div class="subject-card" data-subject-id="{{ subject.id }}">
+                            <div class="subject-header">
+                                <div class="subject-icon">
+                                    <i class="{{ subject.icon }}"></i>
+                                </div>
+                                <h3>{{ subject.name }}</h3>
+                            </div>
+                            <div class="subject-stats">
+                                <span>{{ subject.units|length }} units</span>
+                                <span>Created: {{ subject.created_at[:10] if subject.created_at else 'Unknown' }}</span>
+                            </div>
+                            <div class="subject-actions">
+                                <button class="edit-btn" onclick="editSubject('{{ subject.id }}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="delete-btn" onclick="deleteSubject('{{ subject.id }}', '{{ subject.name }}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                            
+                            <!-- Units List -->
+                            {% if subject.units %}
+                            <div class="units-list">
+                                <h4>Units:</h4>
+                                {% for unit in subject.units|sort(attribute='number') %}
+                                <div class="unit-item">
+                                    <span class="unit-number">{{ unit.number }}</span>
+                                    <span class="unit-title">{{ unit.title }}</span>
+                                    {% if unit.filename %}
+                                        <i class="fas fa-file-check" title="File available"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-times" title="No file"></i>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No subjects created yet</h3>
+                        <p>Start by adding your first subject using the "Add Content" section</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Add Content Section -->
+            <div id="add-section" class="admin-section">
+                <h2 class="section-title">Add New Content</h2>
+                
+                <div class="add-content-tabs">
+                    <button class="content-tab active" data-type="subject" onclick="showContentType('subject')">
+                        Add Subject
+                    </button>
+                    <button class="content-tab" data-type="unit" onclick="showContentType('unit')">
+                        Add Unit
+                    </button>
+                </div>
+
+                <!-- Add Subject Form -->
+                <div id="add-subject-form" class="content-form active">
+                    <form id="subjectForm" onsubmit="addSubject(event)">
+                        <div class="form-group">
+                            <label for="subject-name" class="form-label">Subject Name</label>
+                            <input type="text" id="subject-name" name="subject_name" class="form-input" 
+                                   placeholder="e.g., Computer Networks" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject-icon" class="form-label">Icon Class</label>
+                            <select id="subject-icon" name="subject_icon" class="form-select">
+                                <option value="fas fa-network-wired">Network</option>
+                                <option value="fas fa-code">Programming</option>
+                                <option value="fas fa-database">Database</option>
+                                <option value="fas fa-microchip">Hardware</option>
+                                <option value="fas fa-chart-line">Mathematics</option>
+                                <option value="fas fa-book">General</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-plus"></i> Create Subject
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Add Unit Form -->
+                <div id="add-unit-form" class="content-form">
+                    {% if subjects %}
+                    <form id="unitForm" onsubmit="addUnit(event)" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="unit-subject" class="form-label">Select Subject</label>
+                            <select id="unit-subject" name="subject_id" class="form-select" required>
+                                <option value="">Choose a subject</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="unit-number" class="form-label">Unit Number</label>
+                                <input type="number" id="unit-number" name="unit_number" class="form-input" 
+                                       min="1" max="10" placeholder="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="unit-pages" class="form-label">Pages Count</label>
+                                <input type="number" id="unit-pages" name="pages_count" class="form-input" 
+                                       min="1" placeholder="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-title" class="form-label">Unit Title</label>
+                            <input type="text" id="unit-title" name="unit_title" class="form-input" 
+                                   placeholder="e.g., Introduction to Networking" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-description" class="form-label">Description</label>
+                            <textarea id="unit-description" name="unit_description" class="form-textarea" 
+                                      placeholder="Brief description of the unit content" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-topics" class="form-label">Topics (comma-separated)</label>
+                            <input type="text" id="unit-topics" name="topics" class="form-input" 
+                                   placeholder="e.g., OSI Model, TCP/IP, Routing">
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-file" class="form-label">Upload File</label>
+                            <input type="file" id="unit-file" name="file" class="form-file" 
+                                   accept=".pdf,.pptx,.docx,.doc,.txt">
+                            <small class="file-info">Supported formats: PDF, PPTX, DOCX, DOC, TXT</small>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-plus"></i> Add Unit
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>No subjects available</h3>
+                        <p>Create a subject first before adding units</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Navigation between sections
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+        }
+
+        // Content type switching in add section
+        function showContentType(type) {
+            document.querySelectorAll('.content-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.content-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+            document.getElementById(`add-${type}-form`).classList.add('active');
+        }
+
+        // Add subject functionality
+        async function addSubject(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = {
+                subject_name: formData.get('subject_name'),
+                subject_icon: formData.get('subject_icon')
+            };
+            
+            const button = event.target.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/admin/add_subject', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Subject created successfully!', 'success');
+                    event.target.reset();
+                    // Refresh the page to show new subject
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'Failed to create subject', 'error');
+                }
+            } catch (error) {
+                showToast('Error creating subject. Please try again.', 'error');
+            }
+            
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+
+        // Add unit functionality
+        async function addUnit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            
+            const button = event.target.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/admin/add_unit', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Unit added successfully!', 'success');
+                    event.target.reset();
+                    // Refresh the page to show updated content
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'Failed to add unit', 'error');
+                }
+            } catch (error) {
+                showToast('Error adding unit. Please try again.', 'error');
+            }
+            
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+
+        // Delete subject functionality
+        async function deleteSubject(subjectId, subjectName) {
+            if (!confirm(`Are you sure you want to delete "${subjectName}"? This will also delete all associated units and files.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/delete_subject/${subjectId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Subject deleted successfully!', 'success');
+                    // Remove the subject card from DOM
+                    const subjectCard = document.querySelector(`[data-subject-id="${subjectId}"]`);
+                    if (subjectCard) {
+                        subjectCard.remove();
+                    }
+                    // Refresh stats
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'Failed to delete subject', 'error');
+                }
+            } catch (error) {
+                showToast('Error deleting subject. Please try again.', 'error');
+            }
+        }
+
+        // Edit subject functionality (placeholder)
+        function editSubject(subjectId) {
+            showToast('Edit functionality coming soon!', 'info');
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                z-index: 5000;
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: all 0.3s ease;
+                font-family: inherit;
+                font-size: 0.9rem;
+                font-weight: 500;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 100);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // File input styling
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('unit-file');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const fileName = this.files[0].name;
+                        showToast(`File selected: ${fileName}`, 'info');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

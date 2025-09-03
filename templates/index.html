@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Access study materials for your department, year, and semester">
+    <title>Notes Dock - Select Your Course</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-brand">
+            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Notes Dock Logo" class="header-logo">
+            <h1 class="site-title">Notes Dock</h1>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="selection-container">
+            <div class="hero-section">
+                <h1 class="hero-title">Welcome to Notes Dock</h1>
+                <p class="hero-subtitle">Select your course details to access study materials</p>
+            </div>
+
+            <form class="selection-form" id="courseForm" action="/subjects" method="GET">
+                <div class="form-group">
+                    <label for="department" class="form-label">
+                        <i class="fas fa-graduation-cap"></i>
+                        Department
+                    </label>
+                    <select id="department" name="department" class="form-select" required>
+                        <option value="">Select Department</option>
+                        <option value="computer_science">Computer Science</option>
+                        <option value="information_technology">Information Technology</option>
+                        <option value="electronics">Electronics & Communication</option>
+                        <option value="mechanical">Mechanical Engineering</option>
+                        <option value="civil">Civil Engineering</option>
+                        <option value="electrical">Electrical Engineering</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="year" class="form-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        Academic Year
+                    </label>
+                    <select id="year" name="year" class="form-select" required>
+                        <option value="">Select Year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="semester" class="form-label">
+                        <i class="fas fa-book"></i>
+                        Semester
+                    </label>
+                    <select id="semester" name="semester" class="form-select" required>
+                        <option value="">Select Semester</option>
+                        <option value="odd">Odd Semester</option>
+                        <option value="even">Even Semester</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Study Materials
+                </button>
+            </form>
+
+            <div class="features-section">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <h3>Easy Downloads</h3>
+                        <p>Download study materials in various formats (PDF, PPTX, DOCX)</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Department Specific</h3>
+                        <p>Content tailored for your specific department and curriculum</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>24/7 Access</h3>
+                        <p>Access your study materials anytime, anywhere</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Quality Content</h3>
+                        <p>Verified and high-quality study materials from trusted sources</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About Notes Dock</h3>
+                    <p>Your ultimate destination for comprehensive study materials. We provide high-quality notes across
+                        multiple subjects to help students excel in their academic journey.</p>
+                    <div class="social-links">
+                        <a href="mailto:notesdock143@gmail.com" class="social-link" title="Email us">
+                            <i class="fa-solid fa-envelope"></i>
+                        </a>
+                        <a href="https://instagram.com/notes_dock_ig" class="social-link" title="Follow us on Instagram"
+                            target="_blank">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="https://github.com" class="social-link" title="Follow us on GitHub" target="_blank">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <a href="https://linkedin.com" class="social-link" title="Connect on LinkedIn" target="_blank">
+                            <i class="fa-brands fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>⏰ 24/7 Support Available</p>
+                <p>&copy; 2025 Notes Dock. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('courseForm');
+            const selects = form.querySelectorAll('select');
+            
+            // Add smooth animations when selections are made
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Form validation with better UX
+            form.addEventListener('submit', function(e) {
+                const department = document.getElementById('department').value;
+                const year = document.getElementById('year').value;
+                const semester = document.getElementById('semester').value;
+                
+                if (!department || !year || !semester) {
+                    e.preventDefault();
+                    showToast('Please fill in all fields', 'error');
+                    return false;
+                }
+                
+                // Show loading state
+                const submitBtn = form.querySelector('.submit-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                submitBtn.disabled = true;
+                
+                // Allow form to submit naturally
+                return true;
+            });
+        });
+        
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                z-index: 5000;
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: all 0.3s ease;
+                font-family: inherit;
+                font-size: 0.9rem;
+                font-weight: 500;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 100);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

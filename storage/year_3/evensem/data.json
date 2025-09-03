@@ -1,0 +1,60 @@
+{
+  "subjects": [
+    {
+      "id": "03ab1390-c325-4977-979e-9c9fd3d67d47",
+      "name": "tamil",
+      "icon": "fas fa-book",
+      "units": [
+        {
+          "id": "f0a5b0ce-0270-43c0-a9fb-7083b6915c54",
+          "number": 4,
+          "title": "vhgd",
+          "description": "bm",
+          "topics": "bn",
+          "pages_count": 0,
+          "filename": "final_year_report_1.pdf",
+          "icon": "fas fa-file-alt",
+          "created_at": "2025-09-03T08:00:09.788514"
+        },
+        {
+          "id": "d3d6f469-340c-4dc9-8979-e7d653906af1",
+          "number": 1,
+          "title": "one",
+          "description": "xgxcvfdgfdgdf",
+          "topics": "xvxc,fdgdg,hgfh",
+          "pages_count": 0,
+          "filename": "FINAL_REVIEW_B11.pptx",
+          "icon": "fas fa-file-alt",
+          "created_at": "2025-09-03T09:30:18.263422"
+        },
+        {
+          "id": "29a52a68-6a91-4a23-9b2a-a6c55fe53328",
+          "number": 2,
+          "title": "sdds",
+          "description": "dsfsd",
+          "topics": "fdsfsd",
+          "pages_count": 35,
+          "filename": "B1_.final_updated.pptx",
+          "icon": "fas fa-file-alt",
+          "created_at": "2025-09-03T09:40:45.951219"
+        }
+      ],
+      "created_at": "2025-09-03T07:59:47.220377"
+    },
+    {
+      "id": "991b3382-c0ba-4e73-b3a6-2622a2bd457a",
+      "name": "english",
+      "icon": "fas fa-book",
+      "units": [],
+      "created_at": "2025-09-03T09:29:42.598792"
+    }
+  ],
+  "stats": {
+    "total_subjects": 2,
+    "total_files": 3,
+    "total_visits": 4,
+    "total_downloads": 0,
+    "storage_used": "0 MB",
+    "last_updated": "2025-09-03T09:40:52.639841"
+  }
+}
